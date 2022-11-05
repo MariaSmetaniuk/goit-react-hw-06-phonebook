@@ -1,6 +1,8 @@
 import { Formik } from 'formik';
-import PropTypes from 'prop-types';
 import { Box } from 'components/Box';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
+import { addContact } from 'redux/contacts/contactsSlice';
 import { Button } from 'components/Button/Button.styled';
 import { Input, Label, FormStyled } from './ContactForm.styled';
 
@@ -9,9 +11,19 @@ const initialValues = {
   number: '',
 };
 
-export const ContactForm = ({ onAddContact }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+
   const handleSubmit = ({ name, number }, actions) => {
-    onAddContact(name, number);
+    const isContactAdded = contacts.find(contact => name === contact.name);
+
+    if (isContactAdded) {
+      alert(`${name} is already in contacts.`);
+      return;
+    }
+
+    dispatch(addContact({ name, number }));
     actions.resetForm();
   };
 
@@ -44,8 +56,4 @@ export const ContactForm = ({ onAddContact }) => {
       </Box>
     </Formik>
   );
-};
-
-ContactForm.propTypes = {
-  onAddContact: PropTypes.func.isRequired,
 };
