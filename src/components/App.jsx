@@ -44,11 +44,6 @@ export const App = () => {
     }
   };
 
-  const changeFilter = e => {
-    const { value } = e.target;
-    setFilter(value);
-  };
-
   const getFilteredContacts = () => {
     return contacts.filter(({ name }) =>
       name.toLowerCase().includes(filter.toLowerCase())
@@ -74,7 +69,7 @@ export const App = () => {
         <ContactForm onAddContact={addContact} />
         <h2>Contacts</h2>
         <Box mt={4}>
-          {isContacts && <Filter value={filter} onChange={changeFilter} />}
+          {isContacts && <Filter />}
           {isContactListShown && (
             <ContactList
               contacts={filter === '' ? contacts : filteredContacts}
