@@ -1,3 +1,0 @@
-// addContact
-// deleteContact
-// setFilter
