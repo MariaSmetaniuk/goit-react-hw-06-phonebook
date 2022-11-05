@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
+import { useSelector } from 'react-redux';
+import { getContacts } from 'redux/selectors';
+import { useFilteredContacts } from 'hooks/useFilteredContacts';
+//styles
 import { GlobalStyle } from './GlobalStyle';
+//components
 import { Box } from './Box';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
@@ -8,51 +11,10 @@ import { ContactList } from './ContactList/ContactList';
 import { Notification } from './Notification/Notification';
 
 export const App = () => {
-  // роблю ліниву ініціалізацію, де беру контакти з localStorage
-  const [contacts, setContacts] = useState(() => {
-    const oldContacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(oldContacts);
-
-    return parsedContacts ?? [];
-  });
-  const [filter, setFilter] = useState('');
-
-  // при оновленні стейту контактів записую в localStorage
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const addContact = (name, number) => {
-    const id = nanoid();
-
-    const isContactAdded = contacts.find(contact => name === contact.name);
-
-    if (isContactAdded) {
-      alert(`${name} is already in contacts.`);
-      return;
-    }
-    setContacts(prevContacts => [...prevContacts, { name, id, number }]);
-  };
-
-  const removeContact = async idToRemove => {
-    await setContacts(prevContacts => {
-      return prevContacts.filter(({ id }) => id !== idToRemove);
-    });
-
-    if (contacts.length === 0) {
-      setFilter('');
-    }
-  };
-
-  const getFilteredContacts = () => {
-    return contacts.filter(({ name }) =>
-      name.toLowerCase().includes(filter.toLowerCase())
-    );
-  };
-
-  const filteredContacts = getFilteredContacts();
+  const contacts = useSelector(getContacts);
+  const filteredContacts = useFilteredContacts();
   const isContacts = contacts.length > 0;
-  const isContactListShown = contacts.length > 0 && filteredContacts.length > 0;
+  const isContactsShown = isContacts && filteredContacts.length > 0;
 
   return (
     <Box p={5} as="main">
@@ -66,16 +28,11 @@ export const App = () => {
         color="text"
       >
         <h1>Phonebook</h1>
-        <ContactForm onAddContact={addContact} />
+        <ContactForm />
         <h2>Contacts</h2>
         <Box mt={4}>
           {isContacts && <Filter />}
-          {isContactListShown && (
-            <ContactList
-              contacts={filter === '' ? contacts : filteredContacts}
-              onRemoveContact={removeContact}
-            />
-          )}
+          {isContactsShown && <ContactList />}
           {!isContacts && <Notification />}
         </Box>
       </Box>
